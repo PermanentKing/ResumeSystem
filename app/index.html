@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume</title>
+  <!-- <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'> -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/base.css">
+  <script src="https://unpkg.com/element-ui@2.4.11/lib/index.js"></script>
+  
+</head>
+
+<body>
+  <div id="main">
+    <el-dialog id="loginDialog" title="ResumeSystem" :visible.sync="loginDialogVisible" center
+      :close-on-click-modal=false :close-on-press-escape=false :show-close=false>
+      <el-button style="float: left "left type="primary" class="" 
+        :loading="isEmployeeLoading" v-bind:disabled="isEmployerLoading"
+        @click="employeeClick">Login as Employee</el-button>
+      <el-button style="float: right" type="success" class="" 
+        :loading="isEmployerLoading" v-bind:disabled="isEmployeeLoading"
+        @click="employerClick">Login as Employer</el-button>
+    </el-dialog>
+
+    <el-container id="mainContainer">
+
+      
+
+      <el-row class="el-row-menu">
+        <el-col background-color="#545c64">
+            <el-menu
+            :default-active="'0'"
+            background-color="#545c64"
+            style="border-right: 0px"
+            text-color="#fff"
+            height="100%"
+            width="300px"
+            @select="handleMenuSelect">
+            <el-submenu index="1">
+                <template slot="title">
+                  <i class="el-icon-location"></i>
+                  <span>ResumeSystem</span>
+                </template>
+                <el-menu-item index="1-1" v-bind:disabled="!(loginStatus && accountType===0)">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">SendedResumes</span>
+                </el-menu-item>
+                <el-menu-item index="1-2" v-bind:disabled="!(loginStatus && accountType===1)">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">GotResumes</span>
+                </el-menu-item>
+                
+              </el-submenu>
+
+            <el-menu-item index="2" v-bind:disabled="!loginStatus">
+              <i class="el-icon-goods"></i>
+              <span slot="title">Companys</span>
+            </el-menu-item>
+
+            <el-menu-item index="3" v-bind:disabled="!(loginStatus && accountType===1)">
+                <i class="el-icon-setting"></i>
+                <span slot="title">Set Company Introduce</span>
+              </el-menu-item>
+            
+          </el-menu>
+
+
+        </el-col>
+      </el-row>
+
+
+
+      <el-main style="position: relative;" id="scrollContainer" v-loading="mainLoading">
+
+        <div style="position: absolute; width: calc(100% - 40px); top: 0px;">
+
+              <el-row v-show="currentSystem === '1-1' || currentSystem === '1-2'">
+                  <el-col :span="7" v-for="resume in resumes" :key="resume.resumeId" :offset="1">
+                    <el-card :body-style="{ padding: '0px' }">
+                      <img src="./img/timg.png" class="image">
+                      <div style="padding: 14px;">
+                        <span>{{ resume.resumeTitle }}</span>
+                        <div class="bottom clearfix">
+                          <time class="time">{{SendCardLabel}} {{ resume.company }}</time>
+                          <el-button type="text" class="button" @click="viewDetail(resume.resumeId)">详情</el-button>
+                        </div>
+                      </div>
+                    </el-card>
+                  </el-col>
+                </el-row>
+
+
+
+          </div>
+
+          <el-dialog :title="selectResume.resumeTitle" :visible.sync="dialogVisible" width="70%" :before-close="handleClose">
+              <div>
+                <h3>{{ ResumesendLabel }}</h3>
+                <span>{{selectResume.company}}</span>
+              </div>
+              <div>
+                <h3>ResumeContent</h3>
+                <span>{{selectResume.resumeContent}}</span>
+              </div>
+              <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+              </span>
+          </el-dialog>
+
+
+
+
+          <div style="position: absolute; width: calc(100% - 40px); top: 20px;">
+            <el-card v-show="currentSystem === '2'"
+              v-for="employer in employers" class="employer-card" :key="employer.employerId"
+              style="position: relative;">
+                <div slot="header" class="clearfix">
+                  <div>
+                    <div class="address-label" style="width: auto; margin-right: 10px;">ADDRESS</div>
+                    <div class="address-cotent">{{ employer.address }}</div>
+                  </div>
+                  <transition name="el-fade-in" appear>
+                    <el-button style="
+                      position: absolute;
+                      top: 12px;
+                      right: 20px;
+                      font-size: 26px;" type="text"
+                      @click="sendResumeButtonClick(employer.address)" v-bind:disabled="!(loginStatus && accountType===0)">SendResume</el-button>
+                  </transition>
+                </div>
+
+                <div class="text item" style="width: 100%;
+                display: inline-block;
+                word-wrap: break-word;
+                white-space: normal;">
+                    <h2>Introduce</h2>
+                    <span>{{employer.introduce}}</span>
+                </div>
+
+            </el-card>
+          
+          
+          
+          
+          </div>
+
+          <el-dialog id="sendingResumeDialog" width="70%" title="Send Resume" :visible.sync="sendingResumeDialogVisible">
+              <el-form label-position="top" label-width="80px" :model="newResume" ref="sendResumeForm">
+                <el-form-item label="To Account Address" prop="to" :rules="
+                [{ required: true, message: 'To account address cannot stay empty.'}]">
+                  <el-input v-model="newResume.to" readonly="readonly"></el-input>
+                </el-form-item>
+                <el-form-item label="Title" prop="maintitle" :rules="
+                  [{ required: true, message: 'You must specify the number of eth you would like to pay.'}]">
+                  <el-input v-model="newResume.maintitle"></el-input>
+                </el-form-item>
+
+                <el-form-item label="Content" prop="maincontent" :rules="
+                  [{ required: true, message: 'You must specify the number of eth you would like to pay.'}]">
+                  <el-input v-model="newResume.maincontent" type="textarea" autosize></el-input>
+                </el-form-item>
+              </el-form>
+            
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="sendingResumeDialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="sendResumeTo">Send</el-button>
+              </div>
+            </el-dialog>
+
+
+
+            <div style="position: absolute; width: calc(100% - 40px); top: 20px;">
+
+                <el-form v-show='currentSystem === "3"' ref="EmployerIntroform" :model="NewEmployerIntro" label-width="80px">
+                    <el-form-item label="Address" prop="address">
+                        <el-input v-model="NewEmployerIntro.address" readonly="readonly"></el-input>
+                    </el-form-item>
+                    
+                  
+                    
+                    <el-form-item label="公司简介" prop="introduce">
+                      <el-input type="textarea" v-model="NewEmployerIntro.introduce"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="primary" @click="setCompanyIntro">设置</el-button>
+                    </el-form-item>
+                  </el-form>
+            
+            </div>
+
+          
+
+      </el-main>
+    </el-container>
+  </div>
+
+
+
+
+
+  <!-- <h1>MetaCoin</h1>
+  <h2>Example Truffle Dapp</h2>
+  <h3>You have <span class="black"><span id="balance"></span> META</span></h3>
+
+  <br>
+  <h1>Send MetaCoin</h1>
+  <br><label for="amount">Amount:</label><input type="text" id="amount" placeholder="e.g., 95"></input>
+  <br><label for="receiver">To Address:</label><input type="text" id="receiver" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
+  <br><br><button id="send" onclick="App.sendCoin()">Send MetaCoin</button>
+  <br><br>
+  <span id="status"></span>
+  <br>
+  <span class="hint"><strong>Hint:</strong> open the browser developer console to view any errors and warnings.</span> -->
+</body>
+<script src="./app.js"></script>
+</html>
