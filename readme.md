@@ -1,4 +1,4 @@
-#实验报告
+# 实验报告
 <!--一些基础知识：
 Solidity在全局命名空间中预设了一些特殊的变量和函数，用来提供关于区块链的信息和一些通用的工具函数
 
@@ -33,13 +33,13 @@ tx.gasprice (uint): 交易的 gas 价格
 
 tx.origin (address): 交易发起者（完全的调用链）-->
 
-###参考博客：
+### 参考博客：
 
 [以太坊开发（二）Truffle示例项目拆解](https://www.jianshu.com/p/f2cae0b1ff45)
 
 [【区块链】Truffle 部署 编译 测试 智能合约 的 完整实践操作](https://blog.csdn.net/diandianxiyu_geek/article/details/78361621)
 
-###我的代码：
+### 我的代码：
 [https://github.com/PermanentKing/ResumeSystem](https://github.com/PermanentKing/ResumeSystem)
 
 
@@ -126,9 +126,9 @@ npm install -save-dev url-loader和file-loader
 
 
 
-##合约接口
+## 合约接口
 -----
-####获取简历：
+#### 获取简历：
 
 getResumeTitle
 
@@ -137,7 +137,7 @@ getResumeContent
 getResumeOne
 
 ---
-####创建账号：
+#### 创建账号：
 
 createEmployee
 
@@ -146,7 +146,7 @@ createEmployer
 
 -----
 
-####设置/获取公司简介：
+#### 设置/获取公司简介：
 
 setEmployerIntro
 
@@ -154,7 +154,7 @@ getEmployerIntro
 
 -----
 
-####获取用户数量：
+#### 获取用户数量：
 
 getEmployeeCount
 
@@ -162,7 +162,7 @@ getEmployerCount
 
 ----
 
-####获取accout的address对应的用户：
+#### 获取accout的address对应的用户：
 
 getEmployeeIndex
 
@@ -170,7 +170,7 @@ getEmployerIndex
 
 ---
 
-####获取对应index的用户的账户address：
+#### 获取对应index的用户的账户address：
 
 getEmployeeAddress
 
@@ -178,7 +178,7 @@ getEmployerAddress
 
 ---
 
-####获取对应用户的发送或接收的简历的数量：
+#### 获取对应用户的发送或接收的简历的数量：
 
 getEmployeeSendResumeCounter
 
@@ -186,7 +186,7 @@ getEmployerGetResumeCounter
 
 ---
 
-####获取对应用户的发送或接收的简历的索引：
+#### 获取对应用户的发送或接收的简历的索引：
 
 getSendResumeAt
 
@@ -195,11 +195,11 @@ getGetResumeAt
 -----
 
 
-####加载简历
+#### 加载简历
 先getEmployeeIndex，然后getEmployeeSendResumeCounter，然后进行for循环，通过getSendResumeAt获取简历索引，通过getResumeTitle获取简历信息。
 
 
-####加载雇主列表
+#### 加载雇主列表
 基本同上，通过getEmployerAddress获取雇主地址，以及getEmployerIntro获取公司简介。
 
 
